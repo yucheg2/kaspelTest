@@ -2,12 +2,17 @@ import { Button, Form, Input, Modal } from "antd";
 import React, { useState, useEffect } from "react";
 import { useUsers } from "../../hooks/useUsers";
 
-const CreateModal = ({ open, onCancel }) => {
-    const { addUser } = useUsers();
+const EditModal = ({ open, initialData, onCancel }) => {
+    const { editUser } = useUsers();
 
     const [form] = Form.useForm();
     const [submittable, setSubmittable] = useState(false);
     const values = Form.useWatch([], form);
+
+    const isDisabled =
+        !submittable ||
+        !values.name ||
+        (values.name === initialData.name && values.date === initialData.date);
 
     useEffect(() => {
         form.validateFields({
@@ -22,9 +27,12 @@ const CreateModal = ({ open, onCancel }) => {
         );
     }, [values]);
 
-    const handleAdd = (e) => {
-        form.setFieldsValue({ name: "", date: "" });
-        addUser(values);
+    useEffect(() => {
+        form.setFieldsValue(initialData);
+    }, [initialData]);
+
+    const handleEdit = (e) => {
+        editUser(values, initialData.key);
         onCancel();
     };
 
@@ -38,6 +46,7 @@ const CreateModal = ({ open, onCancel }) => {
             date.getFullYear()
         );
     };
+
     return (
         <Modal
             open={open}
@@ -52,8 +61,7 @@ const CreateModal = ({ open, onCancel }) => {
                     rules={[
                         {
                             required: true,
-                            message:
-                                "Имя обязательно для создания пользователя",
+                            message: "Имя обязательно для пользователя",
                         },
                         {
                             type: "string",
@@ -70,8 +78,7 @@ const CreateModal = ({ open, onCancel }) => {
                     rules={[
                         {
                             required: true,
-                            message:
-                                "Дата обязательна для создания пользователя",
+                            message: "Дата обязательна для пользователя",
                         },
                         {
                             pattern: new RegExp(
@@ -95,11 +102,11 @@ const CreateModal = ({ open, onCancel }) => {
                     <Button
                         key="add"
                         htmlType="submit"
-                        onClick={handleAdd}
-                        disabled={!submittable || !values.name}
+                        onClick={handleEdit}
+                        disabled={isDisabled}
                         type="primary"
                     >
-                        Добавить
+                        Редактировать
                     </Button>
                 </Form.Item>
             </Form>
@@ -107,4 +114,4 @@ const CreateModal = ({ open, onCancel }) => {
     );
 };
 
-export default CreateModal;
+export default EditModal;
