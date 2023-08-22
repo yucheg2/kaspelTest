@@ -78,8 +78,8 @@ const UsersTable = () => {
         if (searchText !== "") {
             const arr = users.filter((user) => {
                 return (
-                    user.name.includes(searchText) |
-                    user.date.includes(searchText)
+                    user.name.toLowerCase().includes(searchText.toLowerCase()) |
+                    user.date.toLowerCase().includes(searchText.toLowerCase())
                 );
             });
             setFilteredUsers(arr);
