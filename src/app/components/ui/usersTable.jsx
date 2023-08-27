@@ -39,7 +39,7 @@ const UsersTable = () => {
             title: "Имя",
             dataIndex: "name",
             defaultSortOrder: "descend",
-            sorter: (a, b) => (a.name > b.name ? -1 : 1),
+            sorter: (a, b) => (a.name > b.name ? 1 : -1),
         },
         {
             title: "Дата",
@@ -50,6 +50,11 @@ const UsersTable = () => {
                     ? 1
                     : -1;
             },
+        },
+        {
+            title: "Число",
+            dataIndex: "number",
+            sorter: (a, b) => a.number - b.number,
         },
         {
             title: "Действия",
@@ -78,8 +83,13 @@ const UsersTable = () => {
         if (searchText !== "") {
             const arr = users.filter((user) => {
                 return (
-                    user.name.toLowerCase().includes(searchText.toLowerCase()) |
-                    user.date.toLowerCase().includes(searchText.toLowerCase())
+                    user.name
+                        .toLowerCase()
+                        .includes(searchText.toLowerCase()) ||
+                    user.date
+                        .toLowerCase()
+                        .includes(searchText.toLowerCase()) ||
+                    user.number.includes(searchText.toLowerCase())
                 );
             });
             setFilteredUsers(arr);

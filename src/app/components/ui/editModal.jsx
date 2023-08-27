@@ -1,6 +1,8 @@
-import { Button, Form, Input, Modal } from "antd";
+import { Button, DatePicker, Form, Input, Modal } from "antd";
 import React, { useState, useEffect } from "react";
 import { useUsers } from "../../hooks/useUsers";
+import { format } from "date-fns";
+import dayjs from "dayjs";
 
 const EditModal = ({ open, initialData, onCancel }) => {
     const { editUser } = useUsers();
@@ -13,6 +15,7 @@ const EditModal = ({ open, initialData, onCancel }) => {
         !submittable ||
         !values.name ||
         (values.name === initialData.name && values.date === initialData.date);
+    const dateFormat = "DD.MM.YYYY";
 
     useEffect(() => {
         form.validateFields({
@@ -28,23 +31,21 @@ const EditModal = ({ open, initialData, onCancel }) => {
     }, [values]);
 
     useEffect(() => {
-        form.setFieldsValue(initialData);
+        form.setFieldsValue({
+            ...initialData,
+            date: dayjs(initialData.date, dateFormat),
+        });
     }, [initialData]);
 
     const handleEdit = (e) => {
-        editUser(values, initialData.key);
-        onCancel();
-    };
-
-    const getCurrentDate = () => {
-        const date = new Date();
-        return (
-            date.getDate() +
-            "." +
-            (date.getMonth() + 1) +
-            "." +
-            date.getFullYear()
+        editUser(
+            {
+                ...values,
+                date: format(values.date.$d, "dd.MM.yyyy"),
+            },
+            initialData.key
         );
+        onCancel();
     };
 
     return (
@@ -78,17 +79,29 @@ const EditModal = ({ open, initialData, onCancel }) => {
                     rules={[
                         {
                             required: true,
-                            message: "Дата обязательна для пользователя",
-                        },
-                        {
-                            pattern: new RegExp(
-                                /^[0-9]{1,2}.(0?[1-9]|1[0-2]).[0-9]{4}$/g
-                            ),
-                            message: `Введите дату (${getCurrentDate()})`,
+                            message:
+                                "Дата обязательна для создания пользователя",
                         },
                     ]}
                 >
-                    <Input placeholder="Введите день рождения пользователя" />
+                    <DatePicker
+                        format={dateFormat}
+                        style={{ width: "100%" }}
+                        placeholder="Введите день рождения пользователя"
+                    />
+                </Form.Item>
+                <Form.Item
+                    name="number"
+                    label="Число"
+                    rules={[
+                        {
+                            required: true,
+                            message:
+                                "число обязательно для создания пользователя",
+                        },
+                    ]}
+                >
+                    <Input placeholder="Введите число" type="number" />
                 </Form.Item>
                 <Form.Item style={{ display: "flex", justifyContent: "end" }}>
                     <Button

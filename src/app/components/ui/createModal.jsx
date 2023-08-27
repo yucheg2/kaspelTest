@@ -1,6 +1,7 @@
-import { Button, Form, Input, Modal } from "antd";
+import { Button, DatePicker, Form, Input, Modal } from "antd";
 import React, { useState, useEffect } from "react";
 import { useUsers } from "../../hooks/useUsers";
+import { format } from "date-fns";
 
 const CreateModal = ({ open, onCancel }) => {
     const { addUser } = useUsers();
@@ -8,6 +9,7 @@ const CreateModal = ({ open, onCancel }) => {
     const [form] = Form.useForm();
     const [submittable, setSubmittable] = useState(false);
     const values = Form.useWatch([], form);
+    const dateFormat = "DD.MM.YYYY";
 
     useEffect(() => {
         form.validateFields({
@@ -22,22 +24,22 @@ const CreateModal = ({ open, onCancel }) => {
         );
     }, [values]);
 
-    const handleAdd = (e) => {
-        form.setFieldsValue({ name: "", date: "" });
-        addUser(values);
+    useEffect(() => {
+        form.resetFields();
+    }, [open]);
+
+    const handleAdd = () => {
+        onCancel();
+        addUser({
+            ...values,
+            date: format(values.date.$d, "dd.MM.yyyy"),
+        });
+    };
+
+    const handleClose = () => {
         onCancel();
     };
 
-    const getCurrentDate = () => {
-        const date = new Date();
-        return (
-            date.getDate() +
-            "." +
-            (date.getMonth() + 1) +
-            "." +
-            date.getFullYear()
-        );
-    };
     return (
         <Modal
             open={open}
@@ -73,21 +75,32 @@ const CreateModal = ({ open, onCancel }) => {
                             message:
                                 "Дата обязательна для создания пользователя",
                         },
+                    ]}
+                >
+                    <DatePicker
+                        format={dateFormat}
+                        style={{ width: "100%" }}
+                        placeholder="Введите день рождения пользователя"
+                    />
+                </Form.Item>
+                <Form.Item
+                    name="number"
+                    label="Число"
+                    rules={[
                         {
-                            pattern: new RegExp(
-                                /^[0-9]{1,2}.(0?[1-9]|1[0-2]).[0-9]{4}$/g
-                            ),
-                            message: `Введите дату (${getCurrentDate()})`,
+                            required: true,
+                            message:
+                                "число обязательно для создания пользователя",
                         },
                     ]}
                 >
-                    <Input placeholder="Введите день рождения пользователя" />
+                    <Input placeholder="Введите число" type="number" />
                 </Form.Item>
                 <Form.Item style={{ display: "flex", justifyContent: "end" }}>
                     <Button
                         style={{ marginRight: "10px" }}
                         key="cancel"
-                        onClick={onCancel}
+                        onClick={handleClose}
                     >
                         Отменить
                     </Button>
